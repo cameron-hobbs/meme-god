@@ -1,0 +1,40 @@
+[tool.poetry]
+name = "meme-god"
+version = "0.1.0"
+description = ""
+authors = ["cameron <camerontech@protonmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+requests = "^2.32.3"
+django = "^5.2"
+django-seal = "^1.6.3"
+celery = {extras = ["redis"], version = "^5.5.0"}
+gunicorn = "^23.0.0"
+psycopg = {extras = ["binary"], version = "^3.2.6"}
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.5"
+pre-commit = "^4.2.0"
+mypy = "^1.15.0"
+flake8 = "^7.2.0"
+isort = "^6.0.1"
+black = "^25.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["src"]
+
+[tool.mypy]
+python_version = "3.13"
+ignore_missing_imports = true
+strict_optional = true
