@@ -20,6 +20,7 @@ class RedditScraper(BaseComparisonScraper[RedditPost]):
     def ignore_change_fields(self) -> set[str]:
         ignore = super().ignore_change_fields()
         ignore.add("subreddit_subscribers")
+        ignore.add("rankedredditpost")
         return ignore
 
     def cancel_comparison(self, field: str, old_value: str, new_value: str) -> bool:
@@ -51,7 +52,7 @@ class RedditScraper(BaseComparisonScraper[RedditPost]):
             try:
                 self._process_post(subreddit, post)
             except Exception as e:
-                print(e)
+                logger.error(e, exc_info=True)
                 return
         logger.info("Done processing posts")
 
@@ -74,13 +75,18 @@ class RedditScraper(BaseComparisonScraper[RedditPost]):
                 "updated_at",
                 "subreddit",
                 "author",
-                "rankedredditpost",
             }
         }
         post["post_created_at"] = datetime.fromtimestamp(
             post["created_utc"], tz=timezone.utc
         )
         post = {key: val for key, val in post.items() if key in model_fields}
+
+        if (
+            type(post["edited"]) is not bool
+        ):  # sometimes it's a float, going to just ignore if it is
+            post.pop("edited")
+
         reddit_post = RedditPost(
             post_id=post_id, author=author, subreddit=subreddit, **post
         )

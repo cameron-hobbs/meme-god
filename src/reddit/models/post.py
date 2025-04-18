@@ -27,7 +27,7 @@ class RedditPost(BaseModel):
     upvote_ratio = models.DecimalField(decimal_places=2, max_digits=3)
     total_awards_received = models.IntegerField()
     is_created_from_ads_ui = models.BooleanField()
-    edited = models.BooleanField()
+    edited = models.BooleanField(null=True)  # null if it was a float -- ignored
     post_hint = models.CharField(max_length=255)
     pinned = models.BooleanField()
     url = models.URLField(max_length=255)
