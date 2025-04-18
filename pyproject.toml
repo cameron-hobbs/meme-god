@@ -12,6 +12,8 @@ django-seal = "^1.6.3"
 celery = {extras = ["redis"], version = "^5.5.0"}
 gunicorn = "^23.0.0"
 psycopg = {extras = ["binary"], version = "^3.2.6"}
+django-pgviews-redux = "^0.11.0"
+django-extensions = "^4.1"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -21,6 +23,9 @@ mypy = "^1.15.0"
 flake8 = "^7.2.0"
 isort = "^6.0.1"
 black = "^25.1.0"
+pytest-django = "^4.11.1"
+factory-boy = "^3.3.3"
+requests-mock = "^1.12.1"
 
 [build-system]
 requires = ["poetry-core"]

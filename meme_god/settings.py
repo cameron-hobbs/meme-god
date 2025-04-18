@@ -16,6 +16,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_pgviews",
+    "django_extensions",
     "src.reddit",
 ]
 
@@ -51,10 +53,10 @@ WSGI_APPLICATION = "meme_god.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "meme_god_db",
-        "USER": "meme_user",
-        "PASSWORD": "meme_password",
-        "HOST": "postgres",
+        "NAME": os.environ.get("DB_NAME", "meme_god_db"),
+        "USER": os.environ.get("DB_USER", "meme_user"),
+        "PASSWORD": os.environ.get("DB_PASS", "meme_password"),
+        "HOST": os.environ.get("DB_HOST", "postgres"),
         "PORT": "5432",
     }
 }

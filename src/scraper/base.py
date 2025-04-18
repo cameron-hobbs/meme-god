@@ -1,19 +1,21 @@
+import logging
 from abc import ABC, abstractmethod
 from typing import TypeVar, Generic
 
 from src.common.models import BaseChangeLog, BaseModel
 
 
-class Scraper(ABC):
+class BaseScraper(ABC):
     @abstractmethod
     def scrape(self) -> None:
         raise NotImplementedError
 
 
 T = TypeVar("T", bound=BaseModel)
+logger = logging.getLogger(__name__)
 
 
-class ComparisonScraper(Scraper, ABC, Generic[T]):
+class BaseComparisonScraper(BaseScraper, ABC, Generic[T]):
     @property
     @abstractmethod
     def change_log_model(self) -> type[BaseChangeLog]: ...
@@ -46,9 +48,12 @@ class ComparisonScraper(Scraper, ABC, Generic[T]):
             if self.cancel_comparison(field, old_value, new_value):
                 continue
 
-            print(
-                f"post changed: {existing_instance.post_id} - "
-                f"field {field} ({old_value} -> {new_value})"
+            logger.info(
+                "post changed: %s - field %s (%s -> %s)",
+                existing_instance.post_id,
+                field,
+                old_value,
+                new_value,
             )
             changes.append(
                 self.change_log_model(
@@ -59,8 +64,5 @@ class ComparisonScraper(Scraper, ABC, Generic[T]):
                 )
             )
         if not len(changes):
-            print(f"no changes for post {existing_instance.post_id}")
-            print("")
-        else:
-            print("")
+            logger.info("no changes for post %s", existing_instance.post_id)
         self.change_log_model.objects.bulk_create(changes)
