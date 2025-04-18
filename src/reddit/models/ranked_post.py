@@ -28,7 +28,7 @@ class FilteredPostsMax:
 
 class RankedRedditPost(BaseModel):
     ranking = models.FloatField(default=0)
-    reddit_post = models.ForeignKey(RedditPost, on_delete=models.CASCADE, unique=True)
+    reddit_post = models.OneToOneField(RedditPost, on_delete=models.CASCADE)
 
     @staticmethod
     def get_filtered_posts() -> QuerySet[RedditPost]:
