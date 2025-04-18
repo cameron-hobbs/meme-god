@@ -9,6 +9,6 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
     "scrape_reddit": {
         "task": "src.reddit.tasks.scrape_posts",
-        "schedule": crontab(minute="*/5"),
+        "schedule": crontab(minute="*/30"),
     },
 }

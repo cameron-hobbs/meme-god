@@ -1,16 +1,19 @@
+import logging
 from datetime import datetime, timezone
 
-import requests  # type: ignore
 from django.db import transaction
-from requests import HTTPError
 
 from src.reddit.models import RedditUser
 from src.reddit.models.post import RedditPost, RedditPostChangeLog
 from src.reddit.models.sub import RedditSub
-from src.scraper.base import ComparisonScraper
+from src.scraper.api_client.factory import get_api_client
+from src.scraper.base import BaseComparisonScraper
 
 
-class RedditScraper(ComparisonScraper[RedditPost]):
+logger = logging.getLogger(__name__)
+
+
+class RedditScraper(BaseComparisonScraper[RedditPost]):
     comparison_model = RedditPost
     change_log_model = RedditPostChangeLog
 
@@ -32,30 +35,25 @@ class RedditScraper(ComparisonScraper[RedditPost]):
                 self._scrape_category(subreddit, category)
 
     def _scrape_category(self, subreddit: RedditSub, category: str) -> None:
-        print(f"Scraping subreddit {subreddit.tag}, category: {category}")
-        response = requests.get(
-            f"https://www.reddit.com/r/{subreddit.tag}/{category}/.json",
-            headers={
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"
-            },
-        )
-        try:
-            response.raise_for_status()
-        except HTTPError:
-            print(f"failed scrape for {subreddit.tag} {category}")
-            return
-        print("Got data successfully")
-        children = response.json()["data"]["children"]
+        logger.info("Scraping subreddit %s, category: %s", subreddit.tag, category)
 
-        print("Processing posts now")
+        json_response = get_api_client("reddit").json_request(
+            f"r/{subreddit.tag}/{category}/.json"
+        )
+
+        if json_response is None:
+            return
+        children = json_response["data"]["children"]
+
+        logger.info("Processing posts now")
         for child in children:
             post = child["data"]
             try:
                 self._process_post(subreddit, post)
             except Exception as e:
                 print(e)
-                continue
-        print("Done processing posts")
+                return
+        logger.info("Done processing posts")
 
     def _process_post(self, subreddit: RedditSub, post: dict) -> None:
         if "author_fullname" not in post:
@@ -70,7 +68,14 @@ class RedditScraper(ComparisonScraper[RedditPost]):
             field.name
             for field in RedditPost._meta.get_fields()
             if field.name
-            not in {"id", "created_at", "updated_at", "subreddit", "author"}
+            not in {
+                "id",
+                "created_at",
+                "updated_at",
+                "subreddit",
+                "author",
+                "rankedredditpost",
+            }
         }
         post["post_created_at"] = datetime.fromtimestamp(
             post["created_utc"], tz=timezone.utc
@@ -83,7 +88,7 @@ class RedditScraper(ComparisonScraper[RedditPost]):
             try:
                 existing_reddit_post = RedditPost.objects.get(post_id=post_id)
             except RedditPost.DoesNotExist:
-                print(f"Found new reddit post {post_id}")
+                logger.info(f"Found new reddit post {post_id}")
                 reddit_post.save()
             else:
                 self.compare_changes(existing_reddit_post, reddit_post)

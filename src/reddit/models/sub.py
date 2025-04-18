@@ -1,4 +1,4 @@
-__all__ = ["RedditSub"]
+__all__ = ["SubCategory", "RedditSub"]
 
 from django.db import models
 
