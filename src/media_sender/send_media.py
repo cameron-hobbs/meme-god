@@ -21,7 +21,7 @@ def _filename_from_url(url):
 
 
 _POPULAR_HASHTAGS = {
-    Topic.MEMES: {
+    Topic.MEMES: [
         "#memes",
         "#memesdaily",
         "#funny",
@@ -34,8 +34,8 @@ _POPULAR_HASHTAGS = {
         "#humor",
         "#memelife",
         "#dankmemes",
-    },
-    Topic.LONDON: {
+    ],
+    Topic.LONDON: [
         "#london",
         "#londonlife",
         "#citylife",
@@ -43,7 +43,7 @@ _POPULAR_HASHTAGS = {
         "#thisislondon",
         "#londonlove",
         "#londoncalling",
-    },
+    ],
 }
 
 
