@@ -121,7 +121,7 @@ def send_media(suggested_media_id: int) -> None:
 
     curated_title = suggested_media.title
 
-    curated_title += "\n"
+    curated_title += "\n\n"
     curated_title += " ".join(
         random.sample(_POPULAR_HASHTAGS[suggested_media.topic], random.randint(3, 5))
     )
