@@ -8,7 +8,8 @@ class RedditAPIDataTestMixin:
     @pytest.fixture
     def reddit_post(self) -> dict:
         return {
-            "author_fullname": "cameron-hobbs",
+            "author": "cameron-hobbs",
+            "author_fullname": "t2blah123",
             "id": uuid4().hex,
             "created_utc": int(time.time()),
             "over_18": False,

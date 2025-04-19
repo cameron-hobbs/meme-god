@@ -57,10 +57,12 @@ class RedditScraper(BaseComparisonScraper[RedditPost]):
         logger.info("Done processing posts")
 
     def _process_post(self, subreddit: RedditSub, post: dict) -> None:
-        if "author_fullname" not in post:
+        if "author" not in post:
             return
 
-        author, _ = RedditUser.objects.get_or_create(full_name=post["author_fullname"])
+        author, _ = RedditUser.objects.get_or_create(
+            name=post["author"], full_name=post.get("author_fullname")
+        )
         post_id = post.pop("id")
         if post_id is None:
             return

@@ -100,7 +100,7 @@ class TestRedditScraper(BaseTest, RedditModelTestMixin, RedditAPIDataTestMixin):
 
         scraper._process_post(select_subreddit, reddit_post.copy())
 
-        expected_author_id = RedditUser.objects.get(full_name="cameron-hobbs").id
+        expected_author_id = RedditUser.objects.get(name="cameron-hobbs").id
         actual = RedditPost.objects.get()
         assert actual.author_id == expected_author_id
         assert actual.subreddit_id == select_subreddit.id

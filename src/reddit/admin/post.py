@@ -32,6 +32,7 @@ class RedditPostAdmin(ReadOnlyModelAdmin):
         "score",
         "upvote_ratio",
         "num_comments",
+        "post_created_at",
     )
     list_filter = ("subreddit__category",)
 
