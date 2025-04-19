@@ -23,3 +23,10 @@ class BaseChangeLog(BaseCreatedAtModel):
 
     class Meta:
         abstract = True
+
+
+class BaseRankedPost(BaseCreatedAtModel):
+    ranking = models.FloatField(default=0)
+
+    class Meta:
+        abstract = True
