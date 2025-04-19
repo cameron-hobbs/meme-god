@@ -53,6 +53,10 @@ class SuggestionEngine:
                 created_at__gte=timezone.now() - timedelta(seconds=30),
             )
 
+            logger.info(
+                "Got %s created suggestions triggering tasks for",
+                created_suggestions.count(),
+            )
             for created_suggestion in created_suggestions:
                 from src.media_sender.tasks import fetch_media_and_send_to_telegram
 

@@ -5,16 +5,19 @@ from src.common.lock import acquire_lock
 from src.media_sender.send_media import send_media
 from src.media_sender.suggestion.engine import SuggestionEngine
 from src.media_sender.telegram_bot import TelegramBotError
+from src.reddit.models import RankedRedditPost
 
 logger = logging.getLogger(__name__)
 
 
 @app.task(bind=True, acks_late=True)
 def make_daily_suggestions(self) -> None:
-    if not acquire_lock("daily-suggestions", timeout=30):
-        self.retry(countdown=30)
-        logger.debug("Could not acquire lock for daily suggestions, retrying in 30s")
+    if not acquire_lock("daily-suggestions", timeout=60):
+        self.retry(countdown=60)
+        logger.debug("Could not acquire lock for daily suggestions, retrying in 60s")
         return
+
+    RankedRedditPost.refresh()
     suggestion_engine = SuggestionEngine()
     suggestion_engine.run()
 

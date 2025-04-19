@@ -3,11 +3,17 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = "django-insecure-e22-$izzzz^&kadz-8o5+-@d-)3)vy2cim7lf(hzkr9zgtala6"
+SECRET_KEY = os.environ.get(
+    "DJANGO_SECRET_KEY",
+    "django-insecure-e22-$izzzz^&kadz-8o5+-@d-)3)vy2cim7lf(hzkr9zgtala6",
+)
 
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", "false").lower() == "true"
 
 ALLOWED_HOSTS: list[str] = []
+
+if (host := os.environ.get("ALLOWED_HOST")) is not None:
+    ALLOWED_HOSTS.append(host)
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -133,3 +139,5 @@ LOGGING = {
         },
     },
 }
+
+CELERY_TIMEZONE = "Europe/London"

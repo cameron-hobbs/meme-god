@@ -1,6 +1,7 @@
 import logging
 import os
 from io import BytesIO
+import random
 from urllib.parse import urlparse
 
 from asgiref.sync import async_to_sync
@@ -8,6 +9,7 @@ from asgiref.sync import async_to_sync
 import requests
 from django.utils import timezone
 
+from src.common.choices import Topic
 from src.media_sender.models import SuggestedMedia
 from src.media_sender.telegram_bot import TelegramBot
 
@@ -16,6 +18,33 @@ logger = logging.getLogger(__name__)
 
 def _filename_from_url(url):
     return os.path.basename(urlparse(url).path)
+
+
+_POPULAR_HASHTAGS = {
+    Topic.MEMES: {
+        "#memes",
+        "#memesdaily",
+        "#funny",
+        "#funnymemes",
+        "#memelord",
+        "#memeoftheday",
+        "#memesofinstagram",
+        "#instamemes",
+        "#lol",
+        "#humor",
+        "#memelife",
+        "#dankmemes",
+    },
+    Topic.LONDON: {
+        "#london",
+        "#londonlife",
+        "#citylife",
+        "#londoncity",
+        "#thisislondon",
+        "#londonlove",
+        "#londoncalling",
+    },
+}
 
 
 def send_media(suggested_media_id: int) -> None:
@@ -46,14 +75,17 @@ def send_media(suggested_media_id: int) -> None:
 
     bot = TelegramBot()
 
+    curated_title = suggested_media.title
+
+    curated_title += "\n"
+    curated_title += " ".join(
+        random.sample(_POPULAR_HASHTAGS[suggested_media.topic], random.randint(3, 5))
+    )
+
     if not suggested_media.is_video:
-        async_to_sync(bot.send_image_msg)(
-            suggested_media.topic, data, suggested_media.title
-        )
+        async_to_sync(bot.send_image_msg)(suggested_media.topic, data, curated_title)
     else:
-        async_to_sync(bot.send_video_msg)(
-            suggested_media.topic, data, suggested_media.title
-        )
+        async_to_sync(bot.send_video_msg)(suggested_media.topic, data, curated_title)
 
     suggested_media.sent_to_telegram_at = timezone.now()
     suggested_media.save()

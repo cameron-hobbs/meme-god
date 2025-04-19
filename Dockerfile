@@ -26,4 +26,11 @@ RUN poetry run python manage.py collectstatic --noinput
 
 COPY ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
+EXPOSE 8000:8000
+
+RUN mkdir -p /var/log/ \
+    && touch /var/log/celery_worker.log || true \
+    && touch /var/log/celery_beat.log || true \
+    && touch /var/log/gunicorn.log || true
+
 CMD ["/usr/bin/supervisord"]
