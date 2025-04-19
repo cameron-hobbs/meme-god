@@ -28,6 +28,10 @@ COPY ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 EXPOSE 8000:8000
 
+RUN apt-get update && apt-get install -y ffmpeg \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
+
 RUN mkdir -p /var/log/ \
     && touch /var/log/celery_worker.log || true \
     && touch /var/log/celery_beat.log || true \

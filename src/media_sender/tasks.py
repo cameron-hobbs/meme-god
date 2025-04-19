@@ -22,7 +22,7 @@ def make_daily_suggestions(self) -> None:
     suggestion_engine.run()
 
 
-@app.task(bind=True, acks_late=True, max_retries=None)
+@app.task(bind=True, acks_late=True, max_retries=10, time_limit=60, soft_time_limit=30)
 def fetch_media_and_send_to_telegram(self, suggested_media_id: int) -> None:
     if not acquire_lock("telegram-msg", timeout=3):
         self.retry(countdown=1)
