@@ -48,7 +48,7 @@ class BaseComparisonScraper(BaseScraper, ABC, Generic[T]):
             if self.cancel_comparison(field, old_value, new_value):
                 continue
 
-            logger.info(
+            logger.debug(
                 "post changed: %s - field %s (%s -> %s)",
                 existing_instance.post_id,
                 field,
@@ -64,5 +64,5 @@ class BaseComparisonScraper(BaseScraper, ABC, Generic[T]):
                 )
             )
         if not len(changes):
-            logger.info("no changes for post %s", existing_instance.post_id)
+            logger.debug("no changes for post %s", existing_instance.post_id)
         self.change_log_model.objects.bulk_create(changes)

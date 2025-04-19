@@ -1,5 +1,6 @@
 __all__ = ["RankedRedditPost"]
 
+import logging
 from dataclasses import dataclass
 from datetime import date, timedelta
 
@@ -15,8 +16,11 @@ from django.db.models import (
 )
 from django.db.models.functions import Now, Extract
 
-from src.common.models import BaseModel
+from src.common.models import BaseRankedPost
 from src.reddit.models import RedditPost
+
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -26,8 +30,7 @@ class FilteredPostsMax:
     max_age: float
 
 
-class RankedRedditPost(BaseModel):
-    ranking = models.FloatField(default=0)
+class RankedRedditPost(BaseRankedPost):
     reddit_post = models.OneToOneField(RedditPost, on_delete=models.CASCADE)
 
     @staticmethod
@@ -39,9 +42,15 @@ class RankedRedditPost(BaseModel):
 
         q |= Q(is_video=True)
 
+        media_qs = RedditPost.objects.filter(q)
+
+        logger.debug("Media qs is: %s", media_qs)
+
         return (
-            RedditPost.objects.filter(q)
-            .filter(post_created_at__date=date.today(), over_18=False)
+            media_qs.filter(
+                post_created_at__date__gte=date.today() - timedelta(days=1),
+                over_18=False,
+            )
             .alias(
                 minutes_since_created=ExpressionWrapper(
                     (Now() - F("post_created_at")), output_field=DurationField()
@@ -77,11 +86,15 @@ class RankedRedditPost(BaseModel):
 
     @classmethod
     def refresh(cls) -> None:
+        logger.info("Refreshing ranked reddit posts")
         cls.objects.filter(
             created_at__date__lte=date.today() - timedelta(days=2)
         ).delete()
+
         filtered_posts = cls.get_filtered_posts()
+        logger.debug("Filtered reddit posts are: %s", filtered_posts)
         filtered_posts_max = cls.get_filtered_post_aggregate_max(filtered_posts)
+        logger.debug("Filtered posts max are: %s", filtered_posts_max)
 
         queryset = (
             filtered_posts.annotate(
@@ -102,7 +115,7 @@ class RankedRedditPost(BaseModel):
             )
             .values("id", "ranking")
         )
-
+        logger.debug("Ranked queryset is: %s", queryset)
         current_post_ids = set()
         to_update = []
         to_create = []
@@ -113,6 +126,8 @@ class RankedRedditPost(BaseModel):
                 reddit_post_id__in=[obj["id"] for obj in queryset]
             )
         }
+
+        logger.debug("Existing ranked posts are: %s", existing_ranked)
 
         for obj in queryset:
             reddit_post_id = obj["id"]
