@@ -46,6 +46,7 @@ class RankedRedditPost(BaseRankedPost):
 
         logger.debug("Media qs is: %s", media_qs)
 
+        # todo: exclude posts with the same titles (cross-posted on different subs)
         return (
             media_qs.filter(
                 post_created_at__date__gte=date.today() - timedelta(days=1),

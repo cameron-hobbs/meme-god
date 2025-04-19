@@ -1,6 +1,9 @@
 import logging
 from dataclasses import dataclass
 from collections import defaultdict
+from datetime import timedelta
+
+from django.utils import timezone
 
 from src.common.choices import Topic
 from src.media_sender.models import SuggestedMedia
@@ -42,8 +45,18 @@ class SuggestionEngine:
             )
 
             suggestions = SelectedSuggestions(topic=topic, images=images, videos=videos)
-            # TODO: Fetch content and post to Telegram
-            # TODO: Bulk create SuggestedMedia entries
+            suggested_medias = suggestions.images + suggestions.videos
+            SuggestedMedia.objects.bulk_create(suggested_medias)
+
+            created_suggestions = SuggestedMedia.objects.filter(
+                url__in=[suggested_media.url for suggested_media in suggested_medias],
+                created_at__gte=timezone.now() - timedelta(seconds=30),
+            )
+
+            for created_suggestion in created_suggestions:
+                from src.media_sender.tasks import fetch_media_and_send_to_telegram
+
+                fetch_media_and_send_to_telegram.delay(created_suggestion.id)
 
     @staticmethod
     def _group_by_topic(

@@ -2,11 +2,12 @@ from django.contrib import admin
 from django.utils.html import format_html
 from datetime import date
 
+from src.common.admin import ReadOnlyModelAdmin
 from src.reddit.models import RankedRedditPost
 
 
 @admin.register(RankedRedditPost)
-class RankedRedditPostAdmin(admin.ModelAdmin):
+class RankedRedditPostAdmin(ReadOnlyModelAdmin):
     list_display = (
         "subreddit_category",
         "post_url",
