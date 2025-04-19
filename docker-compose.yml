@@ -29,6 +29,9 @@ services:
     command: /usr/bin/supervisord
     environment:
       - DJANGO_SETTINGS_MODULE=meme_god.settings
+      - ALLOWED_HOST=localhost
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - DEBUG=true
     ports:
       - "8000:8000"
     depends_on:

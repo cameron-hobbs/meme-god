@@ -37,7 +37,7 @@ class RankedRedditPost(BaseRankedPost):
     def get_filtered_posts() -> QuerySet[RedditPost]:
         q = Q()
 
-        for url_match in {"i.redd.it", "v.redd.it", "gallery", "png", "jpeg"}:
+        for url_match in {"i.redd.it", "v.redd.it", "png", "jpeg"}:
             q |= Q(url__contains=url_match)
 
         q |= Q(is_video=True)

@@ -9,13 +9,15 @@ python = "^3.10"
 requests = "^2.32.3"
 django = "^5.2"
 django-seal = "^1.6.3"
-celery = {extras = ["redis"], version = "^5.5.0"}
+celery = {extras = ["sqs"], version = "^5.5.1"}
 gunicorn = "^23.0.0"
 psycopg = {extras = ["binary"], version = "^3.2.6"}
 django-pgviews-redux = "^0.11.0"
 django-extensions = "^4.1"
 python-telegram-bot = "^22.0"
 asyncio = "^3.4.3"
+redis = "^5.2.1"
+beautifulsoup4 = "^4.13.4"
 
 
 [tool.poetry.group.dev.dependencies]
