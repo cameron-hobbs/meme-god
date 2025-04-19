@@ -54,9 +54,11 @@ class RedditSuggestionHandler(BaseSuggestionHandler[RankedRedditPost]):
     def handle_suggestions(
         self, ranked_posts: QuerySet[T], recent_suggestion_urls: set[str]
     ) -> list[RankedSuggestedMedia]:
-        unseen_posts = ranked_posts.exclude(
-            reddit_post__url__in=recent_suggestion_urls
-        ).seal()
+        unseen_posts = (
+            ranked_posts.exclude(reddit_post__url__in=recent_suggestion_urls)
+            .select_related("reddit_post")
+            .seal()
+        )
         return [
             RankedSuggestedMedia(
                 suggestion=SuggestedMedia(
@@ -64,6 +66,7 @@ class RedditSuggestionHandler(BaseSuggestionHandler[RankedRedditPost]):
                     topic=unseen_post.reddit_post.subreddit.category,
                     url=unseen_post.reddit_post.url,
                     is_video=unseen_post.reddit_post.is_video,
+                    title=unseen_post.reddit_post.title,
                 ),
                 ranking=unseen_post.ranking,
             )

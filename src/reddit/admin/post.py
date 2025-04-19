@@ -1,5 +1,6 @@
 from django.contrib import admin
 
+from src.common.admin import ReadOnlyModelAdmin
 from src.reddit.models import RedditPost, RedditPostChangeLog
 
 
@@ -9,7 +10,7 @@ class RedditPostChangeLogInline(admin.TabularInline):
 
 
 @admin.register(RedditPost)
-class RedditPostAdmin(admin.ModelAdmin):
+class RedditPostAdmin(ReadOnlyModelAdmin):
     fields = (
         "subreddit",
         "author",
@@ -24,6 +25,7 @@ class RedditPostAdmin(admin.ModelAdmin):
         "total_awards_received",
     )
     list_display = (
+        "id",
         "title",
         "subreddit_category",
         "url",
