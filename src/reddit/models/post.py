@@ -4,12 +4,11 @@ from django.db import models
 
 from src.common.models import BaseModel, BaseChangeLog
 from src.reddit.models.sub import RedditSub
-from src.reddit.models.user import RedditUser
 
 
 class RedditPost(BaseModel):
     author = models.ForeignKey(
-        RedditUser, on_delete=models.PROTECT, related_name="content_posted"
+        "reddit.RedditUser", on_delete=models.PROTECT, related_name="content_posted"
     )
     subreddit = models.ForeignKey(
         RedditSub, on_delete=models.PROTECT, related_name="posts"

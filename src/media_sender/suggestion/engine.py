@@ -1,9 +1,7 @@
 import logging
 from dataclasses import dataclass
 from collections import defaultdict
-from datetime import timedelta
 
-from django.utils import timezone
 
 from src.common.choices import Topic
 from src.media_sender.models import SuggestedMedia
@@ -50,7 +48,7 @@ class SuggestionEngine:
 
             created_suggestions = SuggestedMedia.objects.filter(
                 url__in=[suggested_media.url for suggested_media in suggested_medias],
-                created_at__gte=timezone.now() - timedelta(seconds=30),
+                sent_to_telegram_at__isnull=True,
             )
 
             logger.info(
