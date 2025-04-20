@@ -22,5 +22,4 @@ class RedditUserAdmin(ReadOnlyModelAdmin):
         "full_name",
     )
     list_display = ("id", "name", "created_at")
-
     inlines = [RedditUserPostInline]
